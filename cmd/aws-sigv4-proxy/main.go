@@ -108,6 +108,10 @@ func main() {
 			s.Debug = aws.LogDebugWithSigning
 		}
 	})
+	s3Signer := v4.NewSigner(
+		signer.Credentials,
+		func(s *v4.Signer) { s.DisableURIPathEscaping = true },
+	)
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -121,6 +125,7 @@ func main() {
 		http.ListenAndServe(*port, &handler.Handler{
 			ProxyClient: &handler.ProxyClient{
 				Signer:              signer,
+				S3Signer:            s3Signer,
 				Client:              client,
 				StripRequestHeaders: *strip,
 				SigningNameOverride: *signingNameOverride,
