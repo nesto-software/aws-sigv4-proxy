@@ -74,6 +74,7 @@ func (p *ProxyClient) sign(req *http.Request, service *endpoints.ResolvedEndpoin
 	var err error
 	switch service.SigningMethod {
 	case "v4", "s3v4":
+		p.Signer.DisableURIPathEscaping = true
 		_, err = p.Signer.Sign(req, body, service.SigningName, service.SigningRegion, time.Now())
 		break
 	case "s3":
