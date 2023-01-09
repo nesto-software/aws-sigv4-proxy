@@ -107,6 +107,7 @@ func main() {
 			s.Logger = awsLoggerAdapter{}
 			s.Debug = aws.LogDebugWithSigning
 		}
+		s.DisableURIPathEscaping = true
 	})
 	s3Signer := v4.NewSigner(
 		signer.Credentials,
