@@ -57,24 +57,20 @@ func (p *ProxyClient) sign(req *http.Request, service *endpoints.ResolvedEndpoin
 		body = bytes.NewReader(b)
 	}
 
-	log.Debug("SigningName: ", service.SigningName)
-	log.Debug("SigningMethod: ", service.SigningMethod)
-
 	// S3 service should not have any escaping applied.
 	// https://github.com/aws/aws-sdk-go/blob/main/aws/signer/v4/v4.go#L467-L470
-	// if service.SigningName == "s3" {
-	// 	p.Signer.DisableURIPathEscaping = true
+	if service.SigningName == "s3" {
+		p.Signer.DisableURIPathEscaping = true
 
-	// 	// Enable URI escaping for subsequent calls.
-	// 	defer func() {
-	// 		p.Signer.DisableURIPathEscaping = false
-	// 	}()
-	// }
+		// Enable URI escaping for subsequent calls.
+		defer func() {
+			p.Signer.DisableURIPathEscaping = false
+		}()
+	}
 
 	var err error
 	switch service.SigningMethod {
 	case "v4", "s3v4":
-		p.Signer.DisableURIPathEscaping = true
 		_, err = p.Signer.Sign(req, body, service.SigningName, service.SigningRegion, time.Now())
 		break
 	case "s3":
